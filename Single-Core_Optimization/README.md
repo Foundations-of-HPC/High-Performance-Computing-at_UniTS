@@ -11,3 +11,4 @@ The slides are organized as follows:
 |            |      |
 |            |      |
 
+Recordings are available at https://drive.google.com/drive/folders/1Ya4EH2lN6ViO4JpWZU-G2xXwKuUh1Rn4?usp=sharing
