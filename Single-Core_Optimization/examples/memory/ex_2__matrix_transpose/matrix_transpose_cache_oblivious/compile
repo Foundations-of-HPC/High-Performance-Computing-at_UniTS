@@ -1,0 +1,8 @@
+if [ "$#" -eq 0 ]
+then
+    echo "{ERROR} The script expects the source file name as command-line argument"
+    exit 1
+fi
+
+name=$(basename $1 .c)
+taskset -c 2 gcc -O3 -march=native -mtune=native -fno-stack-protector -fomit-frame-pointer -o $basename $1

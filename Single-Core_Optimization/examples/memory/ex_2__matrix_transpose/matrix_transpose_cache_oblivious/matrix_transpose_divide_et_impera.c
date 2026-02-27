@@ -128,6 +128,12 @@ void transpose_cache_oblivious( const double *src, double *dst,
 
 int main ( int argc, char **argv )
 {
+  if ( (argc > 1) && 
+       ((strcmp(*(argv+1), "-h") == 0) ||
+	(strcmp(*(argv+1), "--help") == 0)) ) {
+    printf("arguments: MODE ( 0 = cache oblivious, !=0 standard) N_ROWS N_COLS THRESHOLD (for std block)\n");
+    return 0; }
+
   int mode = (argc > 1? atoi(*(argv+1)) : CACHE_OBLIVIOUS); // running mode
   int n = (argc > 2? atoi(*(argv+2)) : 4000); // rows
   int m = (argc > 3? atoi(*(argv+3)) : 3000); // columns
