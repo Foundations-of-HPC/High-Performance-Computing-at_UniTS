@@ -4,7 +4,8 @@ This folder collects the slides, example codes and additional materials focused 
 
 The aim is to illustrate how profoundly the peculiarities of modern CPU architecture impact on the way a C/C++ code must be written to exploit their potential - or at least not to incur in severe penalties.
 
-The slides are organized as follows:
+### Slides
+The **slides** are organized as follows:
 
 | Topic                                     | description                                                  | file                                                     |
 | ----------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------- |
@@ -16,7 +17,12 @@ The slides are organized as follows:
 | Optimization techniques                   | Fundamental techniques on writing efficient codes accounting for caches, ILP, SIMD, pipelines, branches | [`Single-core__cache_branches_pipelines_loops.pdf`](Single-core__cache_branches_pipelines_loops.pdf) |
 | Sparse topics of interest                 | How to measure performance, overview of pointers, integer representation | [`topics.pdf`](topics.pdf) |
 
-For every main topic, there are example codes that illustrate its traits, as follows
+### Lecture Notes
+While the course progresses, there will also be **extended lecture notes**, elaborated from the lecture transcripts and slightly revised to include additional materials and references, in the [`notes`](./notes) folder.
+
+
+### Example codes
+For every main topic, there are **example codes** that illustrate its traits, as follows
 
 | TOPICS                                         | sub-topics                                                   |
 | ---------------------------------------------- | ------------------------------------------------------------ |
