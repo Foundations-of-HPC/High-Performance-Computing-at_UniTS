@@ -82,7 +82,7 @@ for (int i = 0; i < Ng; i++) {
 }
 ```
 
-One can go further: if the grid coordinates $i \cdot N_g^{-1} + \text{half\_size}$ are used identically for all three dimensions, precomputing them into a lookup array `ijk[Ng]` before the particle loop saves even the per-particle re-evaluation:
+One can go further: if the grid coordinates $i \cdot N_g^{-1} + \text{half$\_$size}$ are used identically for all three dimensions, precomputing them into a lookup array `ijk[Ng]` before the particle loop saves even the per-particle re-evaluation:
 
 ```c
 double ijk[Ng];
