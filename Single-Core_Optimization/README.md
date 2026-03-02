@@ -1,4 +1,4 @@
-# Single-Core Optmization
+# Single-Core Optimization
 
 This folder collects the slides, example codes and additional materials focused on writing efficient serial code on a single core.
 
