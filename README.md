@@ -42,4 +42,28 @@ The «Basic High-Performance Computing course» aims at teaching to master stude
 - **debugging & profiling** serial and parallel codes
   Slides, lecture notes, additional notes and example codes in the folder [`./Debugging and Profiling`](./Debugging_and_Profiling).
 
+#### REFERENCES & BOOKS
 
+
+##### Ref 1: Introduction to High Performance Computing for Scientists and Engineers
+by Georg Hager and Gerhard Wellein Paperback: 356 pages Publication date July 2, 2010 Editors (Chapman & Hall/CRC Computational Science)
+
+A lot of material is taken from this book. A very nice and complete reference. A little bit old however..
+
+##### Ref 2: High Performance Computing Modern Systems and Practices
+Thomas Sterling Matthew Anderson Maciej Brodowicz eBook ISBN: 9780124202153 Paperback ISBN: 9780124201583
+
+Some of the materials of this book are presented during some lectures.
+
+##### Ref 3: Introduction to High-Performance Scientific Computing,by Victor Eijkhout
+The source and pdf of the book (as well as lecture slides) can be found at this link: https:// https://theartofhpc.com//istc/istc.html, DOI: 10.5281/zenodo.49897
+
+Some of the materials presented in classes are taken from this book.
+
+##### Ref 4: Computer Organization and Design
+by D. A. Patterson and J. L. Hennessy The Morgan Kaufmann Series in Computer Architecture and Design easily available as pdf on the net.
+
+##### Ref 5: Optimizing HPC Applications with Intel Cluster Tools
+Paperback – October 15, 2014 by Alexander Supalov (Author), Andrey Semin (Author), Michael Klemm (Author), & 1 more ISBN-13: 978-1430264965 ISBN-10: 1430264969 Edition: 1st
+
+Nice book but a little bit outdated
