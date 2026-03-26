@@ -3,7 +3,7 @@
 
 ### Main references for MPI lectures: 
 
- - chapter 9 of reference 4 is a nice and detailed introduction to MPI.
+ - chapter 9 of reference 1  is a nice and detailed introduction to MPI.
  - exercises and tutorials on  MPI are present all over the web. Here a few examples:
     - [Here a very good starting point](https://www.mcs.anl.gov/research/projects/mpi/tutorial/index.html)
     - [Another simple tutorial](https://mpitutorial.com/tutorials/) 
