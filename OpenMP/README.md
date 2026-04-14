@@ -15,10 +15,12 @@ The plan is as follows:
    *How to open and manage parallel regions, and nested parallel regions. Shared- and private- data, the threads’ stack. How to specialize execution within a parallel region, how to protect code regions and data locations.*
 
 4. Loops
-
    *How to taks advantage of OpenMP’s shortcuts to manage loops.*
 
-5. OpenMP Memory model
+5. Threads affinity
+   *How to control where the threads run and how to allocate their memory"
+
+6. OpenMP Memory model
    *A concise introduction to OpenMP memory model how to synchronize threads directly.*
 
 #### `notes` folder
