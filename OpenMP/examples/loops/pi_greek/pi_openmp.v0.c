@@ -38,6 +38,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <omp.h>
 
 #define DEFAULT 1000000
