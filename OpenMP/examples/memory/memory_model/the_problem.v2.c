@@ -21,7 +21,7 @@ int main( void )
     if ( myid == 0 )
       {
 	// wait a bit, then signal
-	nanosleep(&(struct timespec){.tv_sec = 0, .tv_nsec = 500000}, NULL);
+	//nanosleep(&(struct timespec){.tv_sec = 0, .tv_nsec = 5000}, NULL);
 	data = 42;
 	ready = 1;
       }
@@ -35,7 +35,8 @@ int main( void )
 	 * then spins on the register.
 	 */
 	while ( ready == 0)
-	  nanosleep(&(struct timespec){.tv_sec = 0, .tv_nsec = 500}, NULL);//spin	
+	;
+	  //nanosleep(&(struct timespec){.tv_sec = 0, .tv_nsec = 500}, NULL);//spin	
 	printf("th%d sees data= %d and ready = %d\n",
 	       myid, data, ready );
       }
