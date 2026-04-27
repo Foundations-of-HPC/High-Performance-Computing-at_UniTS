@@ -52,7 +52,7 @@ By the end of this lecture, students will be able to:
 
 This course begins with a fundamental question: **Why does cloud computing exist?**
 
-The superficial answer—"to provide computing over the internet"—misses the deeper significance. Cloud computing represents a specific solution to problems that prior computing paradigms could not adequately address:
+The superficial answer ("to provide computing over the internet") misses the deeper significance. Cloud computing represents a specific solution to problems that prior computing paradigms could not adequately address:
 
 - The need for **elastic resource allocation** that responds to demand in real-time
 - The **economic inefficiency** of owned infrastructure that sits idle most of the time
@@ -63,7 +63,7 @@ Understanding these motivations is essential because they inform every design de
 
 ### 1.2 The Black Box Problem
 
-Many cloud computing courses teach students to use cloud services as "black boxes"—click this button to launch a virtual machine, use this API to store data. While this approach gets results quickly, it creates practitioners who:
+Many cloud computing courses teach students to use cloud services as "black boxes", click this button to launch a virtual machine, use this API to store data. While this approach gets results quickly, it creates practitioners who:
 
 - **Cannot predict system behavior** under unusual conditions
 - **Cannot debug distributed failures** when things go wrong
@@ -74,7 +74,7 @@ This course takes a different approach. We study the principles underlying cloud
 
 ### 1.3 The Foundations Approach
 
-The concepts introduced in this first lecture—distributed systems principles, the CAP theorem, consistency models, consensus mechanisms—will recur throughout the course:
+The concepts introduced in this first lecture (distributed systems principles, the CAP theorem, consistency models, consensus mechanisms) will recur throughout the course:
 
 - When we study **container orchestration**, we will see how Kubernetes uses etcd (a consensus-based key-value store) to maintain cluster state
 - When we examine **cloud storage**, we will apply CAP theorem reasoning to understand why different storage services make different trade-offs
@@ -92,11 +92,11 @@ Cloud computing did not emerge in a vacuum. It represents the culmination of dec
 
 #### Characteristics
 
-The earliest electronic computers were **mainframes**—large, expensive machines that occupied entire rooms and required specialized staff to operate. Key characteristics included:
+The earliest electronic computers were **mainframes**, large, expensive machines that occupied entire rooms and required specialized staff to operate. Key characteristics included:
 
 - **Centralized computing**: All processing occurred on a single, central machine
 - **Time-sharing**: Multiple users shared the computer's resources, with the operating system rapidly switching between tasks to create the illusion of simultaneous access
-- **Terminal access**: Users interacted via "dumb terminals"—devices with a keyboard and display but no local processing capability
+- **Terminal access**: Users interacted via "dumb terminals", devices with a keyboard and display but no local processing capability
 - **Batch processing**: Jobs were submitted and queued for execution, with results returned later
 - **High cost**: Mainframes were extremely expensive, creating strong economic pressure to maximize utilization
 
@@ -135,7 +135,7 @@ While personal computing democratized access to computing, it introduced new pro
 
 **Collaboration difficulties**: Sharing data between users required physical media (floppy disks, later CDs) or complex network configurations.
 
-**Maintenance burden**: Each machine required individual maintenance—software updates, security patches, hardware repairs—creating significant IT overhead.
+**Maintenance burden**: Each machine required individual maintenance (software updates, security patches, hardware repairs) creating significant IT overhead.
 
 **Data vulnerability**: Data stored only on local drives was vulnerable to hardware failure, theft, or user error.
 
@@ -227,7 +227,7 @@ Despite its ambitions, grid computing remained largely confined to scientific ap
 
 #### Computing as a Utility
 
-The concept of **utility computing** proposed treating computing like electricity or water—a metered service available on demand:
+The concept of **utility computing** proposed treating computing like electricity or water a metered service available on demand:
 
 - **Pay-per-use pricing**: Customers pay only for resources consumed
 - **On-demand provisioning**: Resources available when needed, released when not
@@ -321,7 +321,7 @@ There is no perfectly synchronized clock across all nodes. Each node has its own
 
 **3. Independent Failures**
 
-Components can fail independently. Node A might crash while nodes B and C continue operating. The network connecting them might fail partially—A can reach B but not C. This **partial failure** is fundamentally different from single-machine failure where the entire system either works or doesn't.
+Components can fail independently. Node A might crash while nodes B and C continue operating. The network connecting them might fail partially-A can reach B but not C. This **partial failure** is fundamentally different from single-machine failure where the entire system either works or doesn't.
 
 ### 3.2 Why Distribute?
 
@@ -333,7 +333,7 @@ Distributed systems can handle increasing load by adding more nodes. This **hori
 
 #### Fault Tolerance
 
-If a system runs on a single machine, that machine is a **single point of failure**—if it fails, the entire system fails. Distributed systems can be designed to survive component failures. If one node fails, others can take over its work.
+If a system runs on a single machine, that machine is a **single point of failure**-if it fails, the entire system fails. Distributed systems can be designed to survive component failures. If one node fails, others can take over its work.
 
 #### Geographic Distribution
 
@@ -352,7 +352,7 @@ The benefits of distribution come with significant challenges:
 In a distributed system, some components can fail while others continue operating. This creates scenarios that don't exist in single-machine systems:
 
 - A request might be processed but the acknowledgment lost
-- A node might be slow, not failed—but how do you tell the difference?
+- A node might be slow, not failed, but how do you tell the difference?
 - Different parts of the system might have inconsistent views of the current state
 
 Designing for partial failure requires fundamentally different approaches than designing for all-or-nothing failure.
@@ -368,7 +368,7 @@ The network connecting distributed components is itself unreliable:
 
 #### Coordination Complexity
 
-Getting distributed components to agree on anything—the current state of data, who is the leader, whether a transaction should commit—requires explicit coordination protocols. These protocols add latency, reduce availability, and introduce their own failure modes.
+Getting distributed components to agree on anything (the current state of data, who is the leader, whether a transaction should commit) requires explicit coordination protocols. These protocols add latency, reduce availability, and introduce their own failure modes.
 
 #### Debugging Difficulty
 
@@ -421,7 +421,7 @@ In the 1990s, engineers at Sun Microsystems (primarily Peter Deutsch, with addit
 
 #### Fallacy 7: Transport Cost is Zero
 
-**Reality**: Sending data across networks has costs—bandwidth charges, processing overhead for serialization/deserialization, memory for buffers.
+**Reality**: Sending data across networks has costs, bandwidth charges, processing overhead for serialization/deserialization, memory for buffers.
 
 **Implication**: Consider the cost of communication in system design. Sometimes local processing is cheaper than remote calls.
 
@@ -665,7 +665,7 @@ All operations appear to execute in some sequential order, and each client's ope
 
 #### Difference from Linearizability
 
-If client 1 completes a write before client 2 starts a read, linearizability requires client 2 to see the write. Sequential consistency doesn't—it only requires that each client's operations are ordered correctly relative to each other.
+If client 1 completes a write before client 2 starts a read, linearizability requires client 2 to see the write. Sequential consistency doesn't: it only requires that each client's operations are ordered correctly relative to each other.
 
 #### When to Use
 
@@ -712,7 +712,7 @@ Other clients might not see my writes immediately. The guarantee is only for the
 
 #### Session Consistency
 
-Often implemented as **session consistency**—within a session, you see your own writes. Different sessions might see different data.
+Often implemented as **session consistency**-within a session, you see your own writes. Different sessions might see different data.
 
 #### When to Use
 
@@ -819,7 +819,7 @@ Many applications use different consistency models for different data:
 
 ## 6. Consensus and Coordination
 
-When distributed systems require multiple nodes to agree on something—who is the leader, whether a transaction should commit, what the current configuration is—they need **consensus** protocols.
+When distributed systems require multiple nodes to agree on something (who is the leader, whether a transaction should commit, what the current configuration is) they need **consensus** protocols.
 
 ### 6.1 The Consensus Problem
 
@@ -833,7 +833,7 @@ The consensus problem requires a group of processes to agree on a single value. 
 
 #### Why Consensus is Hard
 
-Consensus seems simple—just have everyone agree! But in a distributed system:
+Consensus seems simple-just have everyone agree! But in a distributed system:
 
 - Messages can be lost or delayed
 - Nodes can crash at any time
@@ -850,7 +850,7 @@ This is the **FLP impossibility result**. It says that consensus is impossible t
 
 #### Implications
 
-The FLP result doesn't mean consensus is useless—practical systems use consensus all the time. It means that practical protocols must make compromises:
+The FLP result doesn't mean consensus is useless: practical systems use consensus all the time. It means that practical protocols must make compromises:
 
 - **Timing assumptions**: Assume partial synchrony (messages eventually arrive within some bound)
 - **Probabilistic guarantees**: Guarantee termination with high probability, not certainty
@@ -921,7 +921,7 @@ Raft is implemented in many production systems:
 
 #### The Majority Principle
 
-Both Paxos and Raft rely on **quorums**—typically majorities. This is because any two majorities must overlap:
+Both Paxos and Raft rely on **quorums**: typically majorities. This is because any two majorities must overlap:
 
 ```
 5 nodes: {A, B, C, D, E}
@@ -970,7 +970,7 @@ If **R + W > N**, reads and writes overlap, so reads see the latest writes.
 
 #### Kubernetes and etcd
 
-Kubernetes uses **etcd** to store all cluster state—what pods should be running, where, with what configuration. etcd uses Raft consensus to ensure this data is consistent and available.
+Kubernetes uses **etcd** to store all cluster state: what pods should be running, where, with what configuration. etcd uses Raft consensus to ensure this data is consistent and available.
 
 **Implications for cluster design**:
 - A 3-node etcd cluster tolerates 1 node failure
@@ -996,7 +996,7 @@ Distributed systems must handle failures gracefully. Understanding failure modes
 
 #### Crash Failures
 
-The simplest failure mode: a node stops executing and never recovers (or recovers much later). The node doesn't do anything wrong—it just stops.
+The simplest failure mode: a node stops executing and never recovers (or recovers much later). The node doesn't do anything wrong, it just stops.
 
 **Detection**: Typically via heartbeat timeouts. If a node doesn't respond within expected time, assume it has crashed.
 
@@ -1023,7 +1023,7 @@ A node responds, but not within the expected time bound. In a real-time system, 
 
 #### Byzantine Failures
 
-A node behaves arbitrarily—it might send wrong data, send different data to different nodes, or actively try to subvert the system. This includes:
+A node behaves arbitrarily, it might send wrong data, send different data to different nodes, or actively try to subvert the system. This includes:
 - Bugs that cause incorrect computation
 - Hardware errors that corrupt data
 - Malicious actors who have compromised a node
@@ -1151,7 +1151,7 @@ This converts **capital expenditure (CapEx)** to **operational expenditure (OpEx
 - **Scale in**: Remove instances when traffic decreases
 - **Auto-scaling**: Automated adjustment based on metrics
 
-This is **elasticity**—the ability to rapidly expand or contract resources.
+This is **elasticity** the ability to rapidly expand or contract resources.
 
 #### Operational Complexity Offload
 

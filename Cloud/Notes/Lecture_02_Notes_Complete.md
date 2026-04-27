@@ -146,7 +146,7 @@ For a service to be considered cloud computing, it must exhibit all five of thes
 
 **The key differentiator**: Traditional infrastructure scales in months (procurement, delivery, installation). Cloud scales in minutes. This changes how applications can be designed.
 
-**Example**: An e-commerce site can scale from 10 servers to 1,000 servers during Black Friday, then back to 10 servers afterward—paying only for what was used.
+**Example**: An e-commerce site can scale from 10 servers to 1,000 servers during Black Friday, then back to 10 servers afterward, paying only for what was used.
 
 ### 2.5 Measured Service
 
@@ -541,7 +541,7 @@ A third party hosts dedicated infrastructure for your organization. You get priv
 **Definition**: The cloud infrastructure is a composition of two or more distinct cloud infrastructures (private, community, or public) that remain unique entities, but are bound together by standardized or proprietary technology that enables data and application portability.
 
 #### Key Requirement
-The infrastructures must be **interconnected**—simply using both public and private cloud doesn't make it hybrid unless they work together as an integrated system.
+The infrastructures must be **interconnected**, simply using both public and private cloud doesn't make it hybrid unless they work together as an integrated system.
 
 #### Use Cases
 
