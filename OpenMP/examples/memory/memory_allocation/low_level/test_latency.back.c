@@ -44,13 +44,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
-
 #include <stdint.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-
+#include <math.h>
+#if defined(NUMA_ALLOC)
+#include <numa.h>
+#include <numaif.h>
+#endif
 #include <omp.h>
 
 #define CPU_TIME_T ({ struct timespec myts; (clock_gettime( CLOCK_THREAD_CPUTIME_ID, &myts ), \
@@ -59,8 +58,11 @@
 // ················································
 //
 
-double stream            ( const double * restrict array, unsigned int N, double *, double * );
-void   probe_memory_alloc( uint64_t  );
+#define BUFFER_SIZE (256 * 1024 * 1024) // larger than L3
+#define CLS 64                          // Cache Line Size
+#define STRIDE_ELEMENTS (CLS / sizeof(uint64_t))  // how many uint64_t elements fit in one cache line
+#define NUM_LINES (BUFFER_SIZE / CLS) // how many L1 lines are needed for the buffer size
+
   
 // ················································
 //
@@ -68,25 +70,7 @@ void   probe_memory_alloc( uint64_t  );
   
 int main( int argc, char **argv )
 {
-  int probe_memory_placement = 0;
 
-  {
-    int opt;
-    while ((opt = getopt(argc, argv, "hlbp")) != -1)
-      {
-	switch(opt)
-	  {
-	  case 'h':
-	    printf("possible options:\n"
-		   "-p probe where mem pages are\n");
-	    return 0;
-	  case 'p': probe_memory_placement = 1; break;
-	  case '?': return 1;
-	  }
-      }
-  }
-
-  
   char *places = getenv("OMP_PLACES");
   char *bind   = getenv("OMP_PROC_BIND");
 
@@ -97,74 +81,148 @@ int main( int argc, char **argv )
   
   if ( bind != NULL )
     printf("OMP_PROC_BINDING is set to %s\n", bind);
-  
+
   int nsockets;
  #pragma omp parallel
  #pragma omp single
   nsockets = omp_get_num_places();
 
   
-  double *data[nsockets];
+  uint64_t *data[nsockets];
   int     thread_to_socket[nsockets];
  #define DOUBLE_DATASIZE (1 << 26)   // get beyond the L3
   
  #pragma omp parallel num_threads(nsockets) proc_bind(spread)
-  {   
+  {
+
+    // --------------------------------------------------------------------------------------
+    // 0. setting up
+    // --------------------------------------------------------------------------------------
+    
     int me       = omp_get_thread_num();
     int mysocket = omp_get_place_num();  // get on what socket this thread is running on
-
+    uint64_t *indexes;
+    
     thread_to_socket[me] = mysocket;
-    data[me] = (double*)aligned_alloc( 64, DOUBLE_DATASIZE*sizeof(double) );
+   #if defined(NUMA_ALLOC)
+    data[me] = (uint64_t*)numa_alloc_onnode(BUFFER_SIZE * sizeof(uint64_t), mysocket);
+    indexes  = (uint64_t*)numa_alloc_onnode(NUM_LINES * sizeof(uint64_t), mysocket);
+   #else
+    data[me] = (uint64_t*)aligned_alloc( 64, BUFFER_SIZE );
+    indexes  = (uint64_t*)aligned_alloc( 64, NUM_LINES*sizeof(uint64_t) );
+   #endif
+
+   #pragma omp single
+    printf("\n[o] setting up random walk for %d cache lines..\n", NUM_LINES);
 
     
-    // initialize, touch, drag through cache and TLB
-    for ( int i = 0; i < DOUBLE_DATASIZE; i++ )
-      data[me][i] = (double)i;
+    // --------------------------------------------------------------------------------------
+    // 1. initialize a regular path of cache lines indexes
+    // --------------------------------------------------------------------------------------
+    
+    // note: this also amounts to a first-touch and should force the memory
+    //       allocation to the nearest possible NUMA node 
+    for ( uint64_t i = 0; i < NUM_LINES; i++ )
+      indexes[i] = i;
+
+    
+    // --------------------------------------------------------------------------------------
+    // 2. randomize the path
+    // --------------------------------------------------------------------------------------
+    
+    unsigned short myseeds[3] = { 1234*me, 567^me, 8919+(1<<me) };
+    //unsigned short myseeds[3] = { time(NULL)*me, time(NULL)^me, time(NULL)+(1<<me) };
+    
+    for ( uint64_t i = NUM_LINES-1; i > 0; i-- )
+      {
+	uint64_t j    = nrand48( myseeds ) % (i+1);
+	uint64_t temp = indexes[i];
+	indexes[i]    = indexes[j];
+	indexes[j]    = temp;
+      }
+
+    for ( uint64_t i = 0; i < NUM_LINES; i++ )
+      if ( indexes[i] > NUM_LINES )
+	printf("idx[%lu] = %lu\n", i, indexes[i]);
+    
+   #pragma omp single
+    printf("[o] building the dependency chain..\n");
+
+    
+    // --------------------------------------------------------------------------------------
+    // 3. Build the Dependent Chain
+    // array[current_random_line] = next_random_line
+    // --------------------------------------------------------------------------------------
+    
+    for (uint64_t i = 0; i < NUM_LINES - 1; i++)
+      {
+	if ( indexes[i] * STRIDE_ELEMENTS >= BUFFER_SIZE/sizeof(uint64_t))
+	  printf("out-of-bound for i=%lu : %lu %lu\n", i, indexes[i] * STRIDE_ELEMENTS, BUFFER_SIZE/sizeof(uint64_t));
+	data[me][indexes[i] * STRIDE_ELEMENTS] = indexes[i + 1] * STRIDE_ELEMENTS;
+      }
+    
+    // Close the loop so it can run infinitely
+    data[me][indexes[NUM_LINES - 1] * STRIDE_ELEMENTS] = indexes[0] * STRIDE_ELEMENTS;
     
    #pragma omp barrier
 
+    
+    // --------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------
+    
    #pragma omp single
-    {
-      if ( probe_memory_placement )
-	probe_memory_alloc( DOUBLE_DATASIZE * sizeof(double) );
-      printf( "running the experiment for %d sockets..\n\n", nsockets );
-    }
+    printf( "[o] running the experiment for %d sockets..\n\n", nsockets );
 
-    double bw[nsockets];   // nsockets is expected to be just a few
+    double L[nsockets];   // nsockets is expected to be just a few
     
     for ( int runner = 0; runner < nsockets; runner ++ )
       {
 	if ( me == runner )
 	  {
-	    printf( "SOCKET %d\n", runner );	    
+	    printf( "SOCKET %d\n", thread_to_socket[me] );	    
 	    
-	    for ( int j = 0; j < nsockets; j++ ) {
-	      printf( "\trunning the stream for S%d <-> S%d : ",
-		      mysocket, thread_to_socket[j]);
-	      double foo1, foo2;
-	      bw[j] = stream ( data[j], DOUBLE_DATASIZE, &foo1, &foo2 );
-	      printf( "BW: %4.2g +- %5.3f GB/s\n",
-		      bw[j], foo1 );
-	      if ( isnan(foo2) )
-		printf("This will never be printed, but convince the "
-		       "optimizer we really need the loop in strem()\n");
-	    }	    
-	    
-	    printf("----------------------------------------\n\n");
+	    for ( int j = 0; j < nsockets; j++ )
+	      {
+		// -------------------------------------------------------------------------
+		// 4. Measure the Latency
+		// -------------------------------------------------------------------------
+		
+		uint64_t current_index = indexes[0] * STRIDE_ELEMENTS;
+		uint64_t iterations = 10000000; // 10 million reads
+		
+		struct timespec start, end;
+
+		double timing = CPU_TIME_T;
+		// THE HOT LOOP: The CPU cannot execute the next read until the current one finishes
+		for (uint64_t i = 0; i < iterations; i++)
+		  current_index = data[j][current_index];
+		timing = CPU_TIME_T - timing;
+		timing /= iterations;
+
+		L[j] = timing*1000000000ULL;
+		
+		printf("\t\tAverage Memory Latency S%d <-> S%d: %7.2f ns\n",
+		       thread_to_socket[me], thread_to_socket[j], L[j]);
+
+
+		// 5. cheat to the Compiler: 
+		// Use the final result so -O3 doesn't delete the entire loop
+		if (current_index == 0xffffffffffffffff)
+		  printf("This will never print, but keeps the optimizer honest.\n");
+		
+	      }
 	  }
        #pragma omp barrier
-       #pragma omp single
-	if ( probe_memory_placement )
-	  probe_memory_alloc( DOUBLE_DATASIZE*sizeof(double) );
       }
 
+
     // ----------------------------------------
-    //  OUTPUT the Bandwidth matrix
+    //  OUTPUT the Latency matrix
     // ----------------------------------------
-    
+
    #pragma omp single
     {
-      printf("\nBandwidth matrix (GB/s)\n\n");
+      printf("\nLatency matrix (ns)\n\n");
       printf("%6s ", "");
       for (int i = 0; i < nsockets; i++)
 	printf("S%-6d ", i);
@@ -180,119 +238,21 @@ int main( int argc, char **argv )
       {
 	printf("S%-3d | ", runner);
 	for (int i = 0; i < nsockets; i++)
-	  printf("%-6.2g  ", bw[i]);
+	  printf("%-6d  ", (unsigned int)L[i]);
 	printf("\n");
       }
    #pragma omp single
     printf("\n");
-    
+
 
     // ----------------------------------------
     //  Release the memory
     // ----------------------------------------
-    
-   #pragma omp barrier
 
-   #if defined(NUMA_ALLOC)
-    numa_free( data[me], DOUBLE_DATASIZE * sizeof(double) );
-   #else
+   #pragma omp barrier
     free( data[me] );
-   #endif
+    free( indexes );
   }
 
   return 0;
-}
-
-
-int cmp( const void *a, const void *b )
-{
-  const double A = *((double*)a);
-  const double B = *((double*)b);
-  return (A>B) - (A<B);
-}
-
-double stream( const double * restrict array, unsigned int N, double *stddev, double *result )
-{
-  unsigned int _N  = N&0xFFFFFF8;  // renders clear that _N is a multiple of 8
-  const double *_a = (const double*) __builtin_assume_aligned( array, 64 );
-
- #if !defined(UNROLL_FACTOR)
- #define UNROLL_FACTOR 8
- #endif
- #if !defined(NREPS)
- #define NREPS 1
- #warning "using just 1 repetition for the stream" 
- #endif
-  
-  double timings[NREPS] = {0};
-
-  for ( int r = 0; r < NREPS; r++ )
-    {
-      double S[UNROLL_FACTOR] = {0};
-      
-      double timing = CPU_TIME_T;
-     #pragma GCC ivdep
-      for ( unsigned int i = 0; i < _N; i += UNROLL_FACTOR )
-	{
-	  for ( int j = 0; j < UNROLL_FACTOR; j++)
-	    S[j] += _a[i+j]*2.0 + 1.0;
-	}      
-      timing = CPU_TIME_T - timing;
-
-      timings[r] = timing;
-      
-      // induce the compiler not to optimize out
-      for ( int j = 1; j < UNROLL_FACTOR; j++ )
-	S[0] += S[j];
-      *result += S[0];
-    }
-
-  double avgtime;
-  double std_dev = 0;
-  
-  // sort the timings
-  if (NREPS > 3)
-    {
-      qsort( timings, NREPS, sizeof(double), cmp );
-      avgtime = timings[0];
-      
-      for ( int j = 1; j < NREPS-2; j++ )
-	avgtime += timings[j];
-      avgtime /= (NREPS-2);
-
-      for ( int j = 0; j < NREPS-2; j++ )
-	std_dev += (timings[j] - avgtime)*(timings[j] - avgtime);
-      std_dev = sqrt(std_dev / (NREPS-2));
-    }
-  else
-    avgtime = timings[0];
-
-  *stddev = std_dev;
-  
-  double bandwidth = ( ((double)_N * sizeof(double))/(1<<30) / avgtime );   // calculate the bandwitdh in GB/s
-
-  return bandwidth;
-}
-
-
-void probe_memory_alloc( uint64_t msize )
-{
-  // get the page size
-  size_t pagesize = sysconf(_SC_PAGESIZE);
-
-  // get how many pages we allcoated
-  size_t npages = msize / pagesize;
-
-  printf("···········································\n"
-	 "probing memory placement on Numa Nodes:\n\n" );
-  // visualize where the memory pages are allocated
-  char cmd[256];
-  snprintf(cmd, sizeof(cmd),
-	   "awk '/anon=/ { for(i=1;i<=NF;i++) if($i ~ /^anon=/) { "
-	   "split($i,a,\"=\"); if(a[2] > %ld ) print } }' /proc/%d/numa_maps",
-	   npages, getpid());
-  system(cmd);
-  //
-  printf("\n···········································\n\n");
-  fflush(stdout);
 }
