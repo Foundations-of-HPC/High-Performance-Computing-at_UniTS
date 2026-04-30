@@ -1,0 +1,67 @@
+services:
+  slurm-master:
+    build:
+      context: ./slurm-master
+    image: slurm-master:latest
+    hostname: slurm-master  
+    volumes:
+      - shared-data:/data
+      - ./slurm-master/slurm.conf:/etc/slurm-llnl/slurm.conf
+      - /Users/morgan/LAVORO/:/home/user01/LAVORO/
+    networks:
+      - slurmnet
+    ports:
+      - "6817:6817"  # Slurmctld port
+      - "2022:22"      # SSH port for direct access
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: "512m"
+
+  slurm-worker1:
+    build:
+      context: ./slurm-node
+    image: slurm-worker:latest
+    hostname: slurm-worker1
+    volumes:
+      - shared-data:/data
+      - ./slurm-master/slurm.conf:/etc/slurm-llnl/slurm.conf
+      - /Users/morgan/LAVORO/:/home/user01/LAVORO/
+    networks:
+      - slurmnet
+    depends_on:
+      - slurm-master
+    cpuset: "0,2,4,6,8"
+    deploy:
+      resources:
+        limits:
+          cpus: "5"
+          memory: "4G"
+
+  slurm-worker2:
+    build:
+      context: ./slurm-node
+    image: slurm-worker:latest
+    hostname: slurm-worker2
+    volumes:
+      - shared-data:/data
+      - ./slurm-master/slurm.conf:/etc/slurm-llnl/slurm.conf
+      - /Users/morgan/LAVORO/:/home/user01/LAVORO/
+    networks:
+      - slurmnet
+    depends_on:
+      - slurm-master
+    deploy:
+      resources:
+        limits:
+          cpus: "5"
+          memory: "4G"
+
+volumes:
+  shared-data:
+    driver: local
+
+networks:
+  slurmnet:
+    driver: bridge
