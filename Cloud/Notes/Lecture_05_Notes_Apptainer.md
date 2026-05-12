@@ -3,8 +3,6 @@
 **Course:** High Performance and Cloud Computing 2025/2026
 **Programme:** Applied Data Science & Artificial Intelligence - HPC Track
 **Institution:** University of Trieste
-**Author:** Course instructor
-**Duration:** 1 h 45 min (Part 1 ≈ 50 min, Part 2 ≈ 55 min)
 ---
 
 ## Learning Objectives (Bloom's Taxonomy)
@@ -22,21 +20,21 @@ By the end of this module, students will be able to:
 
 ## Table of Contents
 
-1. [Lecture 1 — From Docker to Apptainer/Singularity](#lecture-1)
-2. [Exercise 1 — First Contact with Apptainer on Leonardo](#exercise-1)
-3. [Lecture 2 — Building Your First Container Image](#lecture-2)
-4. [Exercise 2 — Building and Importing Images](#exercise-2)
-5. [Lecture 3 — OpenMP in Containers: Affinity, Binding, and NUMA](#lecture-3)
-6. [Exercise 3 — OpenMP Scaling and Binding on DCGP Nodes](#exercise-3)
-7. [Lecture 4 — MPI and GPU in Containers](#lecture-4)
-8. [Exercise 4 — Hybrid MPI+OpenMP and GPU Passthrough on the Booster](#exercise-4)
+1. [Lecture 1 - From Docker to Apptainer/Singularity](#lecture-1)
+2. [Exercise 1 - First Contact with Apptainer on Leonardo](#exercise-1)
+3. [Lecture 2 - Building Your First Container Image](#lecture-2)
+4. [Exercise 2 - Building and Importing Images](#exercise-2)
+5. [Lecture 3 - OpenMP in Containers: Affinity, Binding, and NUMA](#lecture-3)
+6. [Exercise 3 - OpenMP Scaling and Binding on DCGP Nodes](#exercise-3)
+7. [Lecture 4 - MPI and GPU in Containers](#lecture-4)
+8. [Exercise 4 - Hybrid MPI+OpenMP and GPU Passthrough on the Booster](#exercise-4)
 9. [Key Takeaways](#key-takeaways)
 10. [References and Further Reading](#references)
 11. [Glossary](#glossary)
 
 ---
 
-## Lecture 1 — From Docker to Apptainer/Singularity {#lecture-1}
+## Lecture 1 - From Docker to Apptainer/Singularity {#lecture-1}
 
 ### 1.1 Why Containers on HPC?
 
@@ -47,7 +45,7 @@ Traditional HPC software deployment relies on the *environment module* system (`
 - A workflow originally designed on a laptop needs to run on the cluster unchanged
 - A tool from Docker Hub must run on a shared system where Docker itself is not available
 
-**Containers** solve all four problems simultaneously by packaging the entire user-space software environment — libraries, binaries, configuration files, compilers — into a single, portable, immutable artefact that runs on any compatible Linux kernel.
+**Containers** solve all four problems simultaneously by packaging the entire user-space software environment - libraries, binaries, configuration files, compilers - into a single, portable, immutable artefact that runs on any compatible Linux kernel.
 
 > **Definition**: A *container image* is a self-contained, layered filesystem snapshot that includes a complete user-space software environment. The container *runtime* mediates access between the image's user space and the host kernel, without requiring a separate virtualised kernel.
 
@@ -59,7 +57,7 @@ The critical point for HPC is: containers do **not** virtualise the kernel. The 
 
 ### 1.2 Docker: Why It Is Not Suitable for Shared HPC Systems
 
-Docker is the dominant container platform in industry. Understanding why it cannot be used on multi-user HPC clusters is not just a policy detail — it explains the architectural decisions behind Apptainer.
+Docker is the dominant container platform in industry. Understanding why it cannot be used on multi-user HPC clusters is not just a policy detail - it explains the architectural decisions behind Apptainer.
 
 | Property | Docker | Impact on HPC |
 |----------|--------|---------------|
@@ -67,7 +65,7 @@ Docker is the dominant container platform in industry. Understanding why it cann
 | Privilege model | Container can escalate to root on host | A user could gain root on the login node |
 | Network model | Isolated bridge network by default | Breaks InfiniBand and MPI collective operations |
 | Filesystem | Overlayfs via daemon | Incompatible with Lustre and GPFS parallel filesystems |
-| Image format | Layered tarball (OCI) | Thousands of small files — poor performance on Lustre |
+| Image format | Layered tarball (OCI) | Thousands of small files - poor performance on Lustre |
 | User identity | Containers run as root inside by default | Violates HPC site security policies |
 
 The fundamental problem: **Docker's privilege model assumes a trusted administrator configuring containers for untrusted users. HPC clusters must support untrusted users running their own containers.**
@@ -125,9 +123,9 @@ Apptainer's core design principle: **your container process runs as you, not as 
 
 Consequences that matter for HPC students:
 
-1. **Files created inside the container** are owned by you — no permission conflicts
-2. **Privilege escalation inside the container is blocked** — `sudo` inside the container fails
-3. **Your `$HOME`, `$PWD`, and `/tmp` are bind-mounted automatically** — no data copy needed
+1. **Files created inside the container** are owned by you - no permission conflicts
+2. **Privilege escalation inside the container is blocked** - `sudo` inside the container fails
+3. **Your `$HOME`, `$PWD`, and `/tmp` are bind-mounted automatically** - no data copy needed
 4. **The cluster's parallel filesystem (Lustre on Leonardo)** is accessible from inside the container at the same mount points as on the host
 
 ### 1.5 Apptainer vs Docker: Feature Comparison
@@ -199,7 +197,7 @@ You can add extra mounts with `--bind src:dest` or by setting `SINGULARITY_BIND`
 
 ---
 
-## Exercise 1 — First Contact with Apptainer on Leonardo {#exercise-1}
+## Exercise 1 - First Contact with Apptainer on Leonardo {#exercise-1}
 
 
 **Scientific context**: You are a computational biologist. You need to run a BLAST nucleotide search on Leonardo using a specific NCBI BLAST version that is not available as a CINECA module. This exercise explores the Apptainer runtime before you build your own images.
@@ -224,7 +222,7 @@ singularity --version
 
 ---
 
-### Part 1 — Pull and Inspect an Image (8 pts)
+### Part 1 - Pull and Inspect an Image 
 
 ```bash
 # Request an interactive allocation on the DCGP partition (CPU-only, fast for exploration)
@@ -252,7 +250,7 @@ ls -lh blast_latest.sif
 
 ---
 
-### Part 2 — Running Commands and Accessing Host Filesystems 
+### Part 2 - Running Commands and Accessing Host Filesystems 
 
 ```bash
 # Verify your $HOME and $SCRATCH are accessible from inside the container
@@ -295,7 +293,7 @@ cat $SCRATCH/blast_results.txt
 
 ---
 
-### Part 3 — SLURM Batch Job 
+### Part 3 - SLURM Batch Job 
 
 Write a SLURM batch script that runs BLAST inside the container non-interactively:
 
@@ -316,7 +314,7 @@ cat > $SCRATCH/run_blast_container.slurm << 'SLURM'
 # Redirect cache to scratch
 export SINGULARITY_CACHEDIR=$SCRATCH/.singularity_cache
 
-# Use the pre-pulled SIF (do not pull inside a job — network may be restricted)
+# Use the pre-pulled SIF (do not pull inside a job - network may be restricted)
 SIF=$SCRATCH/.singularity_cache/blast_latest.sif
 
 # Use multiple threads via BLAST's -num_threads option
@@ -341,7 +339,7 @@ sbatch $SCRATCH/run_blast_container.slurm
 
 ---
 
-## Lecture 2 — Building Your First Container Image {#lecture-2}
+## Lecture 2 - Building Your First Container Image {#lecture-2}
 
 ### 2.1 Two Paths to a Container Image
 
@@ -588,13 +586,13 @@ Singularity/Apptainer containers inherit some environmental variables.
 
 The file `./01_build_image_from_tar/mc_pi_omp.c` is an OpenMP-parallel Monte Carlo estimation of π. It is the parallel analogue of the Python script used in Chapters 2–3. Each thread draws a disjoint chunk of random points in the unit square and counts those inside the quarter unit circle; a final reduction gives the estimate `4 * hits / N`.
 
-The computation is **embarrassingly parallel** — threads share no state during the main loop — and **compute-bound** — each sample is a handful of floating-point operations on values that live in registers. These two properties make it an ideal workload for studying CPU scaling: if your scaling is poor on this program, you know the cause is *not* memory bandwidth or synchronisation, and so it must be CPU allocation.
+The computation is **embarrassingly parallel** - threads share no state during the main loop - and **compute-bound** - each sample is a handful of floating-point operations on values that live in registers. These two properties make it an ideal workload for studying CPU scaling: if your scaling is poor on this program, you know the cause is *not* memory bandwidth or synchronisation, and so it must be CPU allocation.
 
 Configuration is via environment variables:
 
-- `MC_SAMPLES` — total Monte Carlo samples per run (default 200 M)
-- `MC_REPEATS` — number of timed repeats (default 3; we report the best)
-- `OMP_NUM_THREADS` — standard OpenMP environment variable
+- `MC_SAMPLES` - total Monte Carlo samples per run (default 200 M)
+- `MC_REPEATS` - number of timed repeats (default 3; we report the best)
+- `OMP_NUM_THREADS` - standard OpenMP environment variable
 
 A Makefile is provided to compile it with `gcc -O3 -march=native -fopenmp`.
 
@@ -620,7 +618,7 @@ gcc -O3 -march=native -fopenmp -Wall -Wextra -o mc_pi_omp mc_pi_omp.c -fopenmp
 # exec the program
 
 singularity exec $SCRATCH/containers/my_gcc_16.1.sif mc_pi_omp
-Monte Carlo Pi — OpenMP
+Monte Carlo Pi - OpenMP
   samples/run      = 200000000
   repeats          = 3
   OMP max threads  = 36
@@ -663,14 +661,14 @@ If you do not want the host environment variables to pass into the container you
 
 ---
 
-## Exercise 2 — Building and Importing Images {#exercise-2}
+## Exercise 2 - Building and Importing Images {#exercise-2}
 
 
 **Scientific context**: You are building a portable container for a climate modelling preprocessing pipeline. The pipeline requires Python 3.11, NetCDF4, xarray, dask, and the Climate Data Operators (CDO) toolkit. This software combination is not available as a CINECA module.
 
 ---
 
-### Part 1 — Build a Scientific Python Image (15 pts)
+### Part 1 - Build a Scientific Python Image 
 
 On your **laptop** (or a Linux VM where you have root), write and build the following definition file:
 
@@ -737,14 +735,14 @@ apptainer exec climate_env.sif python3 -c "import xarray; print('OK')"
 apptainer exec climate_env.sif cdo --version
 ```
 
-**Questions (5 pts)**:
+**Questions**:
 1. How large is the resulting SIF file? Run `ls -lh climate_env.sif`.
 2. The `%post` section installs CDO as an `apt` package. CDO 2.x may not be in the Ubuntu 22.04 repos. How would you compile CDO from source inside `%post` instead? Outline the steps.
 3. Why do we create `/leonardo`, `/scratch`, `/work` directories in `%post`? What happens if these do not exist in the container when Apptainer tries to bind-mount them?
 
 ---
 
-### Part 2 — Transfer and Run on Leonardo (8 pts)
+### Part 2 - Transfer and Run on Leonardo 
 
 ```bash
 # Transfer the SIF to Leonardo
@@ -793,7 +791,7 @@ singularity exec $SCRATCH/containers/climate_env.sif \
 
 ---
 
-### Part 3 — Convert a Docker Image (7 pts)
+### Part 3 - Convert a Docker Image 
 
 If you have Docker installed on your laptop:
 
@@ -825,7 +823,7 @@ singularity pull $SCRATCH/containers/my_gcc_16.1.sif \
 
 ---
 
-## Lecture 3 — OpenMP in Containers: Affinity, Binding, and NUMA {#lecture-3}
+## Lecture 3 - OpenMP in Containers: Affinity, Binding, and NUMA {#lecture-3}
 
 ### 3.1 Why OpenMP Binding Matters Inside Containers
 
@@ -990,14 +988,14 @@ singularity exec my_omp.sif \
 
 ---
 
-## Exercise 3 — OpenMP Scaling and Binding on DCGP Nodes {#exercise-3}
+## Exercise 3 - OpenMP Scaling and Binding on DCGP Nodes {#exercise-3}
 
 
 **Scientific context**: You are evaluating the performance of an OpenMP-parallelised dense matrix multiplication (DGEMM) kernel inside a container. The goal is to characterise scaling efficiency and the impact of thread binding on DCGP nodes (Intel Sapphire Rapids, 2×56 cores).
 
 ---
 
-### Part 1 — Build the Benchmark Container 
+### Part 1 - Build the Benchmark Container 
 
 On your laptop, write and build:
 
@@ -1104,7 +1102,7 @@ singularity exec $SCRATCH/containers/omp_bench.sif \
 
 ---
 
-### Part 2 — Thread Scaling Study 
+### Part 2 - Thread Scaling Study 
 
 Write a SLURM script that runs the benchmark with different thread counts:
 
@@ -1146,7 +1144,7 @@ SLURM
 sbatch $SCRATCH/omp_scaling.slurm
 ```
 
-**Questions **:
+**Questions**:
 1. Plot GFLOPS vs thread count for both `close` and `spread` binding strategies. At what thread count does `close` outperform `spread`? Explain physically why.
 2. Calculate the **parallel efficiency** E(N) = T(1) / (N × T(N)) for each thread count. Where does efficiency drop most sharply? What hardware effect causes this?
 3. At 56 threads (one full socket), compare `close` vs `spread`. Which is faster for DGEMM and why? (Hint: consider L3 cache vs memory bandwidth.)
@@ -1154,7 +1152,7 @@ sbatch $SCRATCH/omp_scaling.slurm
 
 ---
 
-### Part 3 — Affinity Visibility 
+### Part 3 - Affinity Visibility 
 
 ```bash
 # Run the affinity_report program (compile it from Lecture 3)
@@ -1173,13 +1171,13 @@ export OMP_PROC_BIND=spread; export OMP_PLACES=sockets
 singularity exec $SIF $SCRATCH/affinity_report
 ```
 
-**Questions **:
+**Questions**:
 1. For each binding strategy, report which physical CPUs are assigned to which threads (from the `sched_getcpu()` output). Do the CPU numbers match what `numactl --hardware` reports for each NUMA node?
 2. What happens to thread placement if you do not set `OMP_PROC_BIND`? Is there a systematic pattern or random placement?
 3. From inside the container, run `hwloc-ls` (if installed in the container). Does the container see the full node topology? Does it correctly identify the two sockets and their associated memory banks?
 
 
-### Part 4 —  Affinity and bandwidt
+### Part 4 -  Affinity and bandwidt
 To properly test the affinity and bandwidth we use the code prepared for the OMP lecures. In particular:
 
 ```C
@@ -1511,7 +1509,7 @@ void probe_memory_alloc( uint64_t msize )
 You can compile it on leonardo using the `omp_bench.sif`
 
 ```bash
-run -N 1 --partition=dcgp_usr_prod --account=INA24_C3T03_0 --nodes=1 --ntasks=2 --cpus-per-task=56 --pty /bin/bash
+srun -N 1 --partition=dcgp_usr_prod --account=INA24_C3T03_0 --nodes=1 --ntasks=2 --cpus-per-task=56 --pty /bin/bash
 
 export SINGULARITY_CACHEDIR=$SCRATCH/.singularity_cache
 
@@ -1590,7 +1588,7 @@ S1   | 4.1     4.5
 ```
 
 ---
-### Part 5 —  Affinity and latency
+### Part 5 -  Affinity and latency
 
 We use the OMP code to test latency in both containers and host.
 
@@ -1971,7 +1969,7 @@ S1   | 188     124
 
 ---
 
-## Lecture 4 — MPI and GPU in Containers {#lecture-4}
+## Lecture 4 - MPI and GPU in Containers {#lecture-4}
 
 ### 4.1 MPI in Containers: The Hybrid Model
 
@@ -2058,7 +2056,7 @@ What `--nv` does:
 1. Detects NVIDIA GPUs on the host (`/dev/nvidia*` devices)
 2. Binds the host CUDA driver libraries into the container at the correct paths
 3. Exposes `/dev/nvidia0`, `/dev/nvidia1`, etc. inside the container
-4. The container does **not** need to ship CUDA driver libraries — only CUDA runtime (`libcudart`) and above
+4. The container does **not** need to ship CUDA driver libraries - only CUDA runtime (`libcudart`) and above
 
 > **Critical rule**: The CUDA *runtime* version inside the container must be ≤ the CUDA *driver* version on the host. On Leonardo's Booster partition, the NVIDIA driver supports CUDA 12.x. Container images built against CUDA ≥ 12.0 will work; images requiring CUDA > driver version will fail.
 
@@ -2158,14 +2156,14 @@ mpirun -np 16 \
 
 ---
 
-## Exercise 4 — Hybrid MPI+OpenMP and GPU Passthrough on the Booster {#exercise-4}
+## Exercise 4 - Hybrid MPI+OpenMP and GPU Passthrough on the Booster {#exercise-4}
 
 
 **Scientific context**: You are benchmarking a hybrid MPI+OpenMP heat equation solver and a GPU-accelerated SAXPY kernel, both inside containers, on Leonardo's Booster partition.
 
 ---
 
-### Part 1 — Build the MPI+OpenMP Container (5 pts)
+### Part 1 - Build the MPI+OpenMP Container 
 
 ```singularity
 # File: mpi_omp.def
@@ -2260,7 +2258,7 @@ singularity exec $SCRATCH/containers/mpi_omp.sif \
 
 ---
 
-### Part 2 — Multi-Node MPI Job 
+### Part 2 - Multi-Node MPI Job 
 
 ```bash
 cat > $SCRATCH/mpi_omp_job.slurm << 'SLURM'
@@ -2740,7 +2738,7 @@ Visible GPUs: 4
 **Question** 
 1. In the SLURM script for the Booster partition, `--gres=gpu:4` requests all 4 GPUs on a node. When a job script does not specify `CUDA_VISIBLE_DEVICES`, how does SLURM control which GPUs are visible inside the container?
 
-### Part 5 — GPU Passthrough: SAXPY on A100
+### Part 5 - GPU Passthrough: SAXPY on A100
 
 Write a minimal CUDA SAXPY benchmark:
 
@@ -2813,7 +2811,7 @@ singularity exec --nv $SIF $SCRATCH/saxpy
 
 3. **Your identity does not change**: The container process runs as you, not as root. Files created inside the container are owned by you. Privilege escalation is blocked.
 
-4. **Build on laptop, run on cluster**: `sudo apptainer build` requires root — use your laptop or a VM. The resulting `.sif` file is architecture-specific (x86_64 for Leonardo) and transferable via `scp`.
+4. **Build on laptop, run on cluster**: `sudo apptainer build` requires root - use your laptop or a VM. The resulting `.sif` file is architecture-specific (x86_64 for Leonardo) and transferable via `scp`.
 
 5. **Host environment variables propagate**: `OMP_NUM_THREADS`, `OMP_PROC_BIND`, `CUDA_VISIBLE_DEVICES`, and all SLURM variables are visible inside the container without any special configuration.
 
@@ -2821,7 +2819,7 @@ singularity exec --nv $SIF $SCRATCH/saxpy
 
 7. **`--nv` injects driver libraries**: The container does not ship CUDA driver libraries. The `--nv` flag injects them from the host at runtime. The container's CUDA runtime version must be ≤ host driver's supported CUDA version.
 
-8. **Store SIF in `$SCRATCH`, cache in `$SCRATCH/.singularity_cache`**: Never store SIF files or the Apptainer cache in `$HOME` on Leonardo — you will exhaust your home quota. Lustre scratch handles large files efficiently.
+8. **Store SIF in `$SCRATCH`, cache in `$SCRATCH/.singularity_cache`**: Never store SIF files or the Apptainer cache in `$HOME` on Leonardo - you will exhaust your home quota. Lustre scratch handles large files efficiently.
 
 ---
 
@@ -2840,13 +2838,13 @@ singularity exec --nv $SIF $SCRATCH/saxpy
 - CINECA. (2024). *LEONARDO: A Pan-European Pre-Exascale Supercomputer for HPC and AI applications*. JLSRF, 8, A186. https://doi.org/10.17815/jlsrf-8-186
 
 ### Books and Courses
-- *Building Containers for Scientific Computing* — CINECA HPC training materials: https://eventi.cineca.it/en/hpc/containerization-hpc
+- *Building Containers for Scientific Computing* - CINECA HPC training materials: https://eventi.cineca.it/en/hpc/containerization-hpc
 - Kleppmann, M. (2017). *Designing Data-Intensive Applications*. O'Reilly. (For distributed systems context.)
 - HSF Training: *Introduction to Apptainer/Singularity*: https://hsf-training.github.io/hsf-training-singularity-webpage/
 
 ### Related Course Lectures
-- **L04**: Docker fundamentals — image layers, OCI format, Dockerfiles
-- **L05/L06**: Kubernetes — container orchestration (different use case: microservices vs HPC)
+- **L04**: Docker fundamentals - image layers, OCI format, Dockerfiles
+- **L05/L06**: Kubernetes - container orchestration (different use case: microservices vs HPC)
 - **L09** (HPC-Cloud integration): Hybrid workflows between Leonardo and ADA Cloud
 
 ---
@@ -2879,4 +2877,4 @@ singularity exec --nv $SIF $SCRATCH/saxpy
 ---
 
 *Module: Apptainer and Singularity for HPC*  
-*Target platform: Leonardo @ CINECA — Booster (A100 GPU) + DCGP (Intel Sapphire Rapids)*
+*Target platform: Leonardo @ CINECA - Booster (A100 GPU) + DCGP (Intel Sapphire Rapids)*
