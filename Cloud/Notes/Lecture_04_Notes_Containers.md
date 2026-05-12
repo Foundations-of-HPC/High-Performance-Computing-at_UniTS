@@ -55,7 +55,7 @@ By the end of this lecture, the student will be able to:
 
 Before we examine the kernel mechanics, it is worth being clear about *why* containers exist and what specific class of problems they address. Confusion on this point is responsible for most of the bad arguments one hears about containers — for instance, the idea that they are merely "lightweight VMs," or that they exist primarily for performance reasons. Both readings miss the historical and technical motivation.
 
-### §1.1 The reproducibility crisis in computational science
+### 1.1 The reproducibility crisis in computational science
 
 A 2016 survey by *Nature* found that 70% of researchers had failed to reproduce another scientist's results, and over 50% had failed to reproduce their own [(Baker, 2016)](#ref-baker-2016). The reasons are many — statistical methodology, data availability, publication bias — but in computational fields a substantial fraction of failures trace to a single mundane cause: the software environment on the second machine differs, in some small way, from the first, and that small difference produces a different answer.
 

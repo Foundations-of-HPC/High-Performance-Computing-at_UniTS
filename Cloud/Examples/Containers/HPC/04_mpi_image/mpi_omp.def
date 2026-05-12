@@ -1,0 +1,23 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%post
+    apt-get update -y
+    apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        gfortran \
+        libopenmpi-dev \
+        openmpi-bin \
+        libnuma-dev \
+        numactl \
+        hwloc
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+    mkdir -p /leonardo /scratch /work
+
+%environment
+    export OMPI_MCA_btl=^openib     # Use UCX (host InfiniBand) not internal OpenIB
+    export OMPI_MCA_pml=ucx
+    export OMP_PROC_BIND=close
+    export OMP_PLACES=cores

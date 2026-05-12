@@ -1,0 +1,1 @@
+singularity pull cuda_12.2.sif docker://nvcr.io/nvidia/cuda:12.2.0-devel-ubuntu22.04

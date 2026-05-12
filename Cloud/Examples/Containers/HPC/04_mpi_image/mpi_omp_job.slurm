@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=mpi_omp_container
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=8
+#SBATCH --cpus-per-task=7           # 56 cores / 8 ranks = 7 threads/rank
+#SBATCH --time=00:20:00
+#SBATCH --mem=20gb
+#SBATCH --partition=dcgp_usr_prod
+#SBATCH --account=your_account
+#SBATCH --output=mpi_omp.%j.out
+
+module purge
+module load hpcx-mpi/2.19
+export SIF=$SCRATCH/.singularity_cache/mpi_omp.sif
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+export OMP_PROC_BIND=close
+export OMP_PLACES=cores
+
+mpirun -np $SLURM_NTASKS  --map-by socket:PE=$SLURM_CPUS_PER_TASK --bind-to core singularity exec  --env OPAL_PREFIX=/usr $SIF $SCRATCH/mpi_omp_ring

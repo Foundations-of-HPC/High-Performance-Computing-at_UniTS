@@ -1,0 +1,37 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%labels
+    Author Your Name
+    Version 1.0
+    Description Scientific Python environment with MPI
+
+%help
+    This container provides Python 3.x with NumPy, SciPy, 
+    mpi4py, and common scientific libraries.
+
+%environment
+    export LC_ALL=C
+    export PATH=/opt/conda/bin:$PATH
+
+%post
+    # System packages
+    apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        wget \
+        ca-certificates \
+        libopenmpi-dev \
+        openmpi-bin \
+	libibverbs-dev \
+        python3 python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+    # Python scientific stack
+    pip install numpy scipy mpi4py matplotlib h5py
+
+%runscript
+    echo "Scientific Python container v1.0"
+    exec python3 "$@"
+
+%test
+    python3 -c "import numpy; import scipy; import mpi4py; print('All imports OK')"
