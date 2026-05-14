@@ -1,0 +1,17 @@
+# terraform.tfvars.example
+# Copia questo file in terraform.tfvars e adatta al tuo OpenStack
+# Poi esegui: source ~/openrc.sh && terraform apply
+
+cluster_name           = "mhpc"
+external_network_name  = "external"     # verifica con: openstack network list --external
+image_name             = "Ubuntu 22.04" # verifica con: openstack image list
+master_flavor          = "m1.medium"    # verifica con: openstack flavor list
+compute_flavor         = "m1.medium"
+compute_node_count     = 2
+keypair_name           = "mhpc-key"
+public_key_path        = "~/.ssh/id_rsa.pub"
+internal_subnet_cidr   = "192.168.100.0/24"
+master_ip              = "192.168.100.10"
+compute_ip_base        = 11             # node01=.11, node02=.12
+compute_cpus           = 2             # deve corrispondere al flavor scelto
+compute_mem_mb         = 3500          # ~500MB meno del RAM totale del flavor
