@@ -461,8 +461,8 @@ static void particles_write_binary (const char        *path,       // output fil
  *
  * This is the most interesting kernel.  
  * A very transparent form: one i particle, one j loop, no Newton-third-law
- * reuse, one accumulator per component, and a scalar sqrt from libm.  That is
- * correct, but it leaves the optimisation space visible:
+ * reuse, one accumulator per component, and a scalar sqrt from libm.
+ * That is correct, but notice the optimisation opportunities:
  *
  *   - which data qualifiers must be introduced for the input/output pointers?
  *   - exploit or deliberately avoid Newton's third law;
@@ -552,7 +552,7 @@ static void drift (particles_t *p,       // particle positions are modified in p
 }
 
 /*
- * Kick all velocities using the current accelerations.  his is the K in DKD
+ * Kick all velocities using the current accelerations. This is the K in DKD
  */
 static void kick (particles_t *p,       // particle velocities are modified in place
                   dtype        dt       // full kick interval
