@@ -108,11 +108,11 @@ int main( int argc, char** argv )
 	  for ( size_t j = 1; j < Nindexes[i]; j++ )
 	    {
 	      size_t idx = indexes[i][j];
-	     #if defined(NO_MANHATTAN_DISTANCE)
-	      sum += P[idx].x;
-	     #else
+	     #if defined(MANHATTAN_DISTANCE)
 	      double manhattan_distance = ( source.x - P[idx].x ) + ( source.y - P[idx].y ) + ( source.z - P[idx].z ) ;
 	      sum += manhattan_distance;
+	     #else
+	      sum += P[idx].x;
 	     #endif
 	    }
 	
@@ -136,11 +136,11 @@ int main( int argc, char** argv )
 	  for ( size_t j = 1; j < Nindexes[i]; j++ )
 	    {
 	      size_t idx = indexes[i][j];
-	     #if defined(NO_MANHATTAN_DISTANCE)
-	      sum += x[i];
-	     #else	      
+	     #if defined(MANHATTAN_DISTANCE)
 	      double manhattan_distance = ( srcx - x[i] ) + ( srcy - y[i] ) + ( srcz - z[i] ) ;
 	      sum += manhattan_distance;
+	     #else
+	      sum += x[i];
 	     #endif
 	    }
 	double timing = CPU_TIME - tstart;

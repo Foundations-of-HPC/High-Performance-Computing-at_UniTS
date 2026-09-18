@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 	  for ( int j = 0; j < Ng; j++ )
 	    for ( int k = 0; k < Ng; k++ )
 	      {
-		dist = pow(x[p] - (double)i/Ng + half_size, 2) +
+		dist = pow(x[p] - (double)i/Ng + half_size, 2.0) +
 		  pow(y[p] - (double)j/Ng + half_size, 2) +
 		  pow(z[p]  - (double)k/Ng + half_size, 2);
 		
