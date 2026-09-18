@@ -126,6 +126,7 @@ The baseline is serial on purpose. Natural extensions are:
 - compare Newton-third-law reuse against thread-private force buffers;  
   when is it convenient, against the price of using atomics for a non-local write?
 - split accumulators to shorten the floating-point dependency chain;
+- keep the SoA structure when parallelizing with MPI (suggestion: use ring-shift communication);
 - [optional] compare scalar `sqrt` with an approximate reciprocal-square-root path and
   verify that energy conservation remains meaningful;
-- [optional] test the SoA layout when adding MPI ring-shift communication;
+- [optional] test the AoS layout when adding MPI ring-shift communication;
