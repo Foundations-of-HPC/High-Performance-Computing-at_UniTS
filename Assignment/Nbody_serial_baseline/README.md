@@ -118,15 +118,14 @@ A warning is printed if the maximum observed drift exceeds `--energy-tol` (defau
 
 The baseline is serial on purpose. Natural extensions are:
 
+- measure the achieved FLOP/s before and after each change.
+- Instrument your code so that you can tie every section and assess their scalability separately, instead of just the total run-time
 - **Pay attention to the data qualifiers, like `const`, `resatrict`, and so on, to let the compiler optimize the code**
-
 - convert `compute_accelerations_naive` into an OpenMP loop without inner-loop
   atomics;
 - compare Newton-third-law reuse against thread-private force buffers;  
   when is it convenient, against the price of using atomics for a non-local write?
 - split accumulators to shorten the floating-point dependency chain;
-- compare scalar `sqrt` with an approximate reciprocal-square-root path and
+- [optional] compare scalar `sqrt` with an approximate reciprocal-square-root path and
   verify that energy conservation remains meaningful;
-- preserve the SoA layout when adding MPI ring-shift communication;
-- can you measure the achieved FLOP/s before and after each change.
-- Instrument your code so that you can tie every section and assess their scalability separately, instead of just the total run-time
+- [optional] test the SoA layout when adding MPI ring-shift communication;
